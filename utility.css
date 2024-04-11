@@ -1,0 +1,63 @@
+.border{
+    border: 2px solid red;
+    margin: 3px;
+}
+
+.flex{
+    display: flex;   
+}
+
+.justify-center{
+    justify-content: center;
+}
+
+.items-center{
+    align-items: center;
+}
+
+.bg-black{
+    background-color: black;
+    color: white;
+}
+
+.invert{
+    filter: invert(1);
+}
+
+.bg-grey{
+    background-color: #121212;
+}
+
+.rounded{
+    border-radius: 7px;
+}
+
+.m-1{
+    margin: 5px;
+}
+
+.p-1{
+    padding: 2px;
+}
+
+/* For WebKit (Chrome, Safari, etc.) */
+::-webkit-scrollbar {
+    width: 12px; /* Adjust the width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: #2E2E2E; /* Color of the tracking area */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #555; /* Color of the scroll thumb */
+    border-radius: 6px; /* Rounded corners of the scroll thumb */
+    border: 3px solid #2E2E2E; /* Creates padding around the scroll thumb */
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin; /* Can be 'auto', 'thin', or 'none' */
+    scrollbar-color: #555 #2E2E2E; /* thumb and track color */
+}
+
