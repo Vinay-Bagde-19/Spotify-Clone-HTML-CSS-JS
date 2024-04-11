@@ -186,19 +186,22 @@ async function main() {
     })
 
     // Add an event listener for volume
+    const volumeValueElement = document.querySelector(".volumeValue");
+
     document.querySelector(".range").getElementsByTagName("input")[0].addEventListener("change", (e) => {
-        // console.log(e.target.value)
-        currentSong.volume = parseInt(e.target.value) / 100
-    })
+        const volumeValue = parseInt(e.target.value);
+        currentSong.volume = volumeValue / 100;
+        volumeValueElement.textContent = `${volumeValue}%`;
+    });
 
     // Add event listener to mute the track
     document.querySelector(".volume>img").addEventListener("click", e => {
-        if(e.target.src.includes("volume.svg")){
+        if (e.target.src.includes("volume.svg")) {
             e.target.src = e.target.src.replace("volume.svg", "mute.svg")
             document.querySelector(".range").getElementsByTagName("input")[0].value = 0;
             currentSong.muted = true;
         }
-        else{
+        else {
             e.target.src = e.target.src.replace("mute.svg", "volume.svg")
             document.querySelector(".range").getElementsByTagName("input")[0].value = 10;
             currentSong.muted = false;

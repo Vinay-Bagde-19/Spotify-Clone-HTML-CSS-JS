@@ -79,6 +79,7 @@ body{
     display: flex;
     margin: 0;
     padding: 0;
+    padding-top: 5px;
     justify-content: space-between;
     height: 80px;
 }
@@ -397,4 +398,80 @@ body{
     .card{
         width: 90vw;
     }
+}
+
+
+@media (max-width: 767px) {
+    /* Styles for phones */
+    .left {
+        width: 70%;
+        position: fixed;
+        top: 0;
+        z-index: 999;
+        height: 100vh;
+        background-color: black;
+        transition: left 0.3s;
+        padding: 10px;
+    }
+
+    .left.open {
+        left: 0;
+    }
+
+    .close {
+        position: absolute;
+        top: -10px;
+        right: -20px;
+    }
+
+    .hamburger {
+        display: block;
+        margin: 20px;
+    }
+
+    .right {
+        width: 100%;
+    }
+
+    .playbar {
+        width: 86%;
+        bottom: 0;
+        left: 0;
+        border-radius: 0;
+    }
+
+    .seekbar{
+        margin: 0 6%;
+        margin-bottom: 100px;
+    }
+
+    .songList {
+        height: auto;
+        max-height: calc(100vh - 200px);
+    }
+
+    .cardContainer {
+        margin: 10px;
+        justify-content: center;
+    }
+
+    .card {
+        width: 90vw;
+    }
+
+    .nav{
+        margin: 0px;
+        padding: 0px;
+    }
+
+    .nav>.hamburgerContainer img{
+        width: 35px;
+    }
+
+    .buttons{
+        margin: 0px;
+        display: flex;
+        row-gap: 0px;
+    }
+
 }
