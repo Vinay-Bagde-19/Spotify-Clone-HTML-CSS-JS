@@ -1,7 +1,10 @@
 console.log("Let's write javascript");
 let currentSong = new Audio();
+let currentSongIndex = 0;
 let songs;
 let currFolder;
+let isRepeating = false;
+let isShuffling = false;
 
 function secondsToMinutesSeconds(seconds) {
     if (isNaN(seconds) || seconds < 0) {
@@ -59,6 +62,7 @@ async function getSongs(folder) {
 }
 
 const playMusic = (track, pause = false) => {
+    currentSongIndex = songs.indexOf(track);
     currentSong.src = `/${currFolder}/` + track
     if (!pause) {
         currentSong.play()
@@ -67,6 +71,30 @@ const playMusic = (track, pause = false) => {
     document.querySelector(".songinfo").innerHTML = decodeURI(track)
     document.querySelector(".songtime").innerHTML = "00:00 / 00:00"
 }
+
+// Play next song when current song ends
+const playNextSong = () => {
+    if (isShuffling) {
+        let nextIndex;
+        do {
+            nextIndex = Math.floor(Math.random() * songs.length);
+        } while (nextIndex === currentSongIndex);
+        currentSongIndex = nextIndex;
+        playMusic(songs[currentSongIndex]);
+    } else {
+        currentSongIndex = (currentSongIndex + 1) % songs.length;
+        playMusic(songs[currentSongIndex]);
+    }
+};
+
+// Function to shuffle the list of songs
+function shuffleSongs() {
+    for (let i = songs.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [songs[i], songs[j]] = [songs[j], songs[i]];
+    }
+}
+
 
 async function displayAlbums() {
     console.log("displaying albums")
@@ -118,7 +146,16 @@ async function displayAlbums() {
     });
 }
 
-
+ // Event listener for repeat button
+ const repeatButton = document.getElementById('repeat');
+ repeatButton.addEventListener('click', () => {
+     isRepeating = !isRepeating;
+     if (isRepeating) {
+         repeatButton.src = 'repeat-active.svg'; // Replace with your desired icon for repeat on
+     } else {
+         repeatButton.src = 'repeat.svg'; // Replace with your desired icon for repeat off
+     }
+ });
 
 
 async function main() {
@@ -207,6 +244,31 @@ async function main() {
             currentSong.muted = false;
         }
     })
+
+
+     // Event listener for shuffle button
+     const shuffleButton = document.getElementById('shuffle');
+     shuffleButton.addEventListener('click', () => {
+         isShuffling = !isShuffling;
+         if (isShuffling) {
+             shuffleSongs();
+             shuffleButton.src = 'shuffle_on.svg'; // Replace with your desired icon for shuffle on
+         } else {
+             // Reset the songs array to the original order
+             getSongs(currFolder);
+             shuffleButton.src = 'shuffle.svg'; // Replace with your desired icon for shuffle off
+         }
+     });
+
+    // Call to playNextSong function if no repeating
+     currentSong.addEventListener('ended', () => {
+        if (isRepeating) {
+            currentSong.currentTime = 0;
+            currentSong.play();
+        } else {
+            playNextSong();
+        }
+    });
 
 }
 
