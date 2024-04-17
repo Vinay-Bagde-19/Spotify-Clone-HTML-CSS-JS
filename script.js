@@ -22,7 +22,7 @@ function secondsToMinutesSeconds(seconds) {
 
 async function getSongs(folder) {
     currFolder = folder;
-    let a = await fetch(`http://127.0.0.1:5500/${folder}/`)
+    let a = await fetch(`/${folder}/`)
     let response = await a.text();
     let div = document.createElement("div")
     div.innerHTML = response;
@@ -41,7 +41,7 @@ async function getSongs(folder) {
     for (const song of songs) {
         songUL.innerHTML = songUL.innerHTML + `<li><img class="invert" width="34px" src="music.svg" alt="">
                         <div class="info">
-                            <div>${song.replaceAll("%20", " ")}</div>
+                        <div>${song.replace(/%20/g, " ")}</div>
                             <div>Vinay</div>
                         </div>
                         <div class="playnow">
@@ -97,7 +97,7 @@ function shuffleSongs() {
 
 
 async function displayAlbums() {
-    console.log("displaying albums")
+    console.log("displaying albums");
     let a = await fetch(`/songs/`);
     let response = await a.text();
     let div = document.createElement("div");
@@ -110,41 +110,62 @@ async function displayAlbums() {
     cardContainer.innerHTML = "";
 
     array.forEach(async e => {
-        // Check if the anchor points to a folder inside /songs
-        if (e.href.includes("/songs/") && e.href !== "/songs/") {
-            let folderName = e.href.split("/").pop(); // Get the folder name
+        console.log('Folder Href:', e.href);
 
-            // Fetch the info.json for the folder
-            let infoResponse = await fetch(`/songs/${folderName}/info.json`);
-            let infoData = await infoResponse.json();
-
-            // Create a card element for each folder
-            let folderCard = document.createElement("div");
-            folderCard.classList.add("card");
-            folderCard.dataset.folder = folderName;
-            folderCard.innerHTML = `
-                <div class="play">
-                    <div style="width: 50px; height: 50px; border-radius: 50%; background-color: #1fdf64; display: flex; justify-content: center; align-items: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="fill: black; stroke: black; stroke-width: 2; stroke-linecap: round; stroke-linejoin: miter;">
-                            <path d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"/>
-                        </svg>
-                    </div>
-                </div>
-                <img src="/songs/${folderName}/cover.jpg" alt="">
-                <h2>${infoData.title || folderName}</h2>
-                <p>${infoData.description || ''}</p>
-            `;
-            cardContainer.appendChild(folderCard);
-
-            // Attach event listener to dynamic cards
-            folderCard.addEventListener("click", async () => {
-                console.log("Fetching Songs");
-                let songs = await getSongs(`songs/${folderName}`);
-                playMusic(songs[0], true);
-            });
+        // Extract the folderName from the href, ensuring it starts with "/songs/"
+        let folderName = "";
+        if (e.href.includes("/songs/") && !e.href.includes(".htaccess")) {
+            folderName = e.href.split("/songs/")[1];
+            if (folderName.includes("/")) {
+                folderName = folderName.split("/")[0];
+            }
         }
+
+        // Skip if folderName is empty
+        if (!folderName) return;
+
+            try {
+                // Fetch the info.json for the folder
+                let infoResponse = await fetch(`/songs/${folderName}/info.json`);
+                if (infoResponse.ok) {
+                    let infoData = await infoResponse.json();
+                    
+                    // Create a card element for each folder
+                    let folderCard = document.createElement("div");
+                    console.log("card created");
+                    folderCard.classList.add("card");
+                    folderCard.dataset.folder = folderName;
+                    folderCard.innerHTML = `
+                        <div class="play">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background-color: #1fdf64; display: flex; justify-content: center; align-items: center;">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="fill: black; stroke: black; stroke-width: 2; stroke-linecap: round; stroke-linejoin: miter;">
+                                    <path d="M18.8906 12.846C18.5371 14.189 16.8667 15.138 13.5257 17.0361C10.296 18.8709 8.6812 19.7884 7.37983 19.4196C6.8418 19.2671 6.35159 18.9776 5.95624 18.5787C5 17.6139 5 15.7426 5 12C5 8.2574 5 6.3861 5.95624 5.42132C6.35159 5.02245 6.8418 4.73288 7.37983 4.58042C8.6812 4.21165 10.296 5.12907 13.5257 6.96393C16.8667 8.86197 18.5371 9.811 18.8906 11.154C19.0365 11.7084 19.0365 12.2916 18.8906 12.846Z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <img src="/songs/${folderName}/cover.jpg" alt="Album Cover">
+                        <h2>${infoData.title || folderName}</h2>
+                        <p>${infoData.description || ''}</p>
+                    `;
+                    cardContainer.appendChild(folderCard);
+    
+                    // Attach event listener to dynamic cards
+                    folderCard.addEventListener("click", async () => {
+                        console.log("Fetching Songs");
+                        let songs = await getSongs(`songs/${folderName}`);
+                        playMusic(songs[0], true);
+                    });
+                } else {
+                    let infoData = { title: folderName, description: '' };
+                }
+
+            } catch (error) {
+                console.error(`Error displaying album ${folderName}:`, error);
+            }
+        
     });
 }
+
 
  // Event listener for repeat button
  const repeatButton = document.getElementById('repeat');
@@ -160,7 +181,15 @@ async function displayAlbums() {
 
 async function main() {
     // Get the list of all the songs
-    await getSongs("songs/ncs")            // albums
+    try {
+        // Get the list of all the songs
+        songs = await getSongs("songs/For 20you"); // Make sure to encode folder names
+        if (songs.length > 0) {
+            // If songs are successfully fetched, play the first song
+            playMusic(songs[0], true);
+        } else {
+            console.error("No songs found."); // Log an error if no songs are found
+        }            // albums
     playMusic(songs[0], true)
 
     // Display all the albums on the page
@@ -252,11 +281,11 @@ async function main() {
          isShuffling = !isShuffling;
          if (isShuffling) {
              shuffleSongs();
-             shuffleButton.src = 'shuffle_on.svg'; // Replace with your desired icon for shuffle on
+             shuffleButton.src = 'shuffle.svg'; // for shuffle on
          } else {
              // Reset the songs array to the original order
              getSongs(currFolder);
-             shuffleButton.src = 'shuffle.svg'; // Replace with your desired icon for shuffle off
+             shuffleButton.src = 'shuffle_off.svg'; // for shuffle off
          }
      });
 
@@ -269,6 +298,9 @@ async function main() {
             playNextSong();
         }
     });
+} catch (error) {
+    console.error("An error occurred:", error);
+}
 
 }
 
